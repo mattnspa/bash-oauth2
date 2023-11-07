@@ -1,0 +1,16 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: {{ template "elastic.fullname" . }}
+spec:
+  version: 8.10.2
+  count: 1
+  elasticsearchRef:
+    name: {{ template "elastic.fullname" . }}
+  config:
+    xpack.security.authc.providers:
+      oidc.oidc1:
+        order: 0
+        realm: "oidc1"
+      basic.basic1:
+        order: 1

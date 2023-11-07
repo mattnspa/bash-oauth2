@@ -1,0 +1,18 @@
+version: "3.7"
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.5
+    command: start-dev --import-realm
+    environment:
+    - KEYCLOAK_ADMIN=admin
+    - KEYCLOAK_ADMIN_PASSWORD=admin
+    # - KC_LOG_LEVEL=DEBUG
+    - KC_HTTP_ENABLED=true
+    - KC_HTTPS_CERTIFICATE_FILE=/opt/keycloak/data/certs/ss.crt
+    - KC_HTTPS_CERTIFICATE_KEY_FILE=/opt/keycloak/data/certs/ss.key
+    ports:
+    - 8080:8080
+    - 8443:8443
+    volumes:
+    - ./keycloak/certs:/opt/keycloak/data/certs
+    - ./keycloak/config:/opt/keycloak/data/import

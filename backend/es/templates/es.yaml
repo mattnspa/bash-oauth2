@@ -1,0 +1,47 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: {{ template "elastic.fullname" . }}
+spec:
+  version: 8.10.2
+  secureSettings:
+  - secretName: oidc1-client-secret
+  - secretName: oidc2-client-secret
+  nodeSets:
+  - name: default
+    count: 1
+    config:
+      node:
+        roles:
+        - master
+        - data
+        store.allow_mmap: false
+      xpack.security.authc.realms.oidc:
+        oidc1:
+          order: 2
+          rp.client_id: elastic
+          rp.response_type: code
+          rp.redirect_uri: https://localhost:9000/api/security/oidc/callback
+          rp.post_logout_redirect_uri: https://localhost:9000/api/security/logged_out
+          op.issuer: https://{{ .Values.ip }}:8443/realms/elastic
+          op.authorization_endpoint: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/auth
+          op.token_endpoint: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/token
+          op.jwkset_path: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/certs
+          op.userinfo_endpoint: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/userinfo
+          op.endsession_endpoint: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/logout
+          claims.principal: sub
+          ssl.verification_mode: none
+        oidc2:
+          order: 3
+          rp.client_id: elastic
+          rp.response_type: code
+          rp.redirect_uri: {{ .Values.rp.url }}
+          rp.post_logout_redirect_uri: {{ .Values.rp.url }}
+          op.issuer: https://{{ .Values.ip }}:8443/realms/elastic
+          op.authorization_endpoint: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/auth
+          op.token_endpoint: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/token
+          op.jwkset_path: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/certs
+          op.userinfo_endpoint: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/userinfo
+          op.endsession_endpoint: https://{{ .Values.ip }}:8443/realms/elastic/protocol/openid-connect/logout
+          claims.principal: sub
+          ssl.verification_mode: none

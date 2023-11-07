@@ -1,11 +1,13 @@
 #!/bin/bash
 
-authentication_endpoint=http://localhost:8080/realms/test/protocol/openid-connect/auth
-token_endpoint=http://localhost:8080/realms/test/protocol/openid-connect/token
-userinfo_endpoint=http://localhost:8080/realms/test/protocol/openid-connect/userinfo
+authentication_endpoint=https://localhost:8443/realms/elastic/protocol/openid-connect/auth
+token_endpoint=https://localhost:8443/realms/elastic/protocol/openid-connect/token
+userinfo_endpoint=https://localhost:8443/realms/elastic/protocol/openid-connect/userinfo
 redirectURI=http://localhost:3000
-clientID=test
-clientSecret=NxLbxxYdOutcvNVZdAtBuEM3kHgZenS2
+clientID=elastic
+clientSecret=7PMff45JuS2hvrhOX9pMbzfOMm0HCY6b
+
+cd "$(dirname "$0")"
 
 tempFile=$(mktemp)
 
@@ -26,7 +28,7 @@ else
 fi
 
 # Get access token
-access_token=$(curl -fsS \
+access_token=$(curl -fksS \
   --data-urlencode "code=${code}" \
   --data-urlencode "client_id=${clientID}" \
   --data-urlencode "client_secret=${clientSecret}" \
@@ -35,12 +37,15 @@ access_token=$(curl -fsS \
   "${token_endpoint}" |
   jq -r '.access_token')
 
+
+echo "access token is: $access_token"
+
 decoded_access_token=$(echo "$(cut -d '.' -f2 <<< ${access_token})==" | base64 -d)
 
 echo "Hello $(jq -r '.preferred_username' <<< $decoded_access_token ), you're email is: $(jq -r '.email' <<< $decoded_access_token )"
 
 # Get user info
-curl  -fsS \
+curl  -fksS \
   -H "Authorization: Bearer ${access_token}" \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   "${userinfo_endpoint}" | jq

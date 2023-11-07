@@ -1,0 +1,7 @@
+password: password
+oidc1:
+  secret: 7PMff45JuS2hvrhOX9pMbzfOMm0HCY6b
+
+ip: 
+rp:
+  url: http://localhost:3000
